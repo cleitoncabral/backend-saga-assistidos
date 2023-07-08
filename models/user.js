@@ -1,4 +1,4 @@
-const mongoose = require('require')
+const mongoose = require('mongoose')
 // const uniqueValidator = require('mongoose-unique-validator')
 
 const userSchema = new mongoose.Schema({
@@ -13,11 +13,11 @@ const userSchema = new mongoose.Schema({
   },
   passwordHash: {
     type: String,
-    required: trye
+    required: true
   },
   contentWatched: [
     {
-    type: mongoose.Schema.types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'ContentWatched'
     }
   ]
