@@ -3,6 +3,28 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 const { nextTick } = require('process')
 
+const unknownEndPoint = (request, response) => {
+  response.status(404).send({error: 'unknown endpoint'})
+}
+
+const errorHandler = (error, request, response, next) => {
+  logger.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  } else if(error.name === 'JsonWebtokenError') {
+    return response.status(400).json({error: error.message})
+  } else if (error.name === 'TokenExpiredError'){
+    return response.status(401).json({
+      error: 'token expired'
+    })
+  }
+
+  next(error)
+}
+
 const tokenExtractor = (request, response, next) => {
   const authorization = request.get('authorization')
 
@@ -43,5 +65,7 @@ const userExtractor = async (request, response, next) => {
 
 module.exports = {
   tokenExtractor,
-  userExtractor
+  userExtractor,
+  unknownEndPoint,
+  errorHandler
 }
