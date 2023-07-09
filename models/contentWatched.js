@@ -6,7 +6,7 @@ const contentWatchedSchema = new mongoose.Schema({
   comment: String,
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user'
+    ref: 'User'
   }
 })
 
