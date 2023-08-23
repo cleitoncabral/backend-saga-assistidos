@@ -6,6 +6,12 @@ contentWatchedRouter.get('/', async (request, response) => {
   response.json(contentWatched)
 })
 
+contentWatchedRouter.get('/:id', async (request, response) => {
+  const contentWatched = await ContentWatched.findById(request.params.id).populate('user', {name: 1, email: 1})
+
+  response.json(contentWatched)
+})
+
 contentWatchedRouter.post('/', async (request, response) => {
   const contentWatched =  new ContentWatched ({
     contentId: request.body.contentId,

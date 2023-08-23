@@ -31,7 +31,7 @@ usersRouter.get('/', async (request, response) => {
 })
 
 usersRouter.delete('/:id', async (request, response) => {
-  if (!request.userId) return response.status(401).json({error: 'invalid token'})
+  if (!request.userId) return response.status(401).json({error: 'Item não encontrado'})
 
   const user = request.user
 

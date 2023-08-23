@@ -9,7 +9,7 @@ loginRouter.post('/', async (request, response) => {
 
   const passwordCorrect = user === null ? false : await bcrypt.compare(password, user.passwordHash)
   
-  if (!(user && passwordCorrect)) return response.status(401).json({error: 'e-mail ou senha inválidos'})
+  if (!(user && passwordCorrect)) return response.status(401).json({error: 'E-mail ou senha inválidos'})
 
   const userForToken = {
     email: user.email,
@@ -17,8 +17,6 @@ loginRouter.post('/', async (request, response) => {
   }
 
   const token = jwt.sign(userForToken, process.env.SECRET, {expiresIn: 60*60})
-
-  console.log(user.contentWatched)
 
   response.status(200).send({token, email: user.email, name: user.name, contentWatched: user.contentWatched})
 })
