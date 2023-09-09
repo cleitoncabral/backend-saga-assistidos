@@ -18,7 +18,10 @@ const userSchema = new mongoose.Schema({
   contentWatched: [
     {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'ContentWatched'
+    contentId: String,
+    comment: String,
+    rate: Number,
+    ref: 'contentWatched'
     }
   ]
 })

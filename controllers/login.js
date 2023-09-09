@@ -5,7 +5,7 @@ const User = require('../models/user')
 
 loginRouter.post('/', async (request, response) => {
   const {email, password} = request.body
-  const user = await User.findOne({ email })
+  const user = await User.findOne({ email }).populate('contentWatched', {contentId: 1, comment: 1, rate: 1})
 
   const passwordCorrect = user === null ? false : await bcrypt.compare(password, user.passwordHash)
   
