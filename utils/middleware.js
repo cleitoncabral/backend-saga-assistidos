@@ -32,7 +32,7 @@ const tokenExtractor = (request, response, next) => {
     response.status(401).json({error: 'token invalid'})
   }
   try {
-    jwt.verify(token, process.env.SECRET)
+    request.userId = jwt.verify(token, process.env.SECRET)
     next()
 
   } catch (error) {
@@ -46,12 +46,11 @@ const tokenExtractor = (request, response, next) => {
 const userExtractor = async (request, response, next) => {
   try {
     const token = request.userId
-    console.log(token)
     if(token) {
       const user = await User.findById(token.id)
       request.user = user
     }
-    return response.status(401).json({error: 'user invalid'})
+    // return response.status(401).json({error: 'user invalid'})
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       response.status(401).json({error: 'user invalid'})

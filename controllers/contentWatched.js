@@ -1,20 +1,20 @@
 const contentWatchedRouter = require('express').Router()
 const ContentWatched = require('../models/contentWatched')
-const {tokenExtractor} = require('../utils/middleware')
+const {tokenExtractor, userExtractor} = require('../utils/middleware')
 
-contentWatchedRouter.get('/', tokenExtractor, async (request, response) => {
+contentWatchedRouter.get('/', tokenExtractor, userExtractor, async (request, response) => {
   //See more about middleware and how to use better
-  const contentWatched = await ContentWatched.find({})
+  const contentWatched = await ContentWatched.find({'_id': {$in: request.user.contentWatched}}).populate('user', {name: 1, email: 1})
   response.json(contentWatched)
 })
 
-contentWatchedRouter.get('/:id', async (request, response) => {
+contentWatchedRouter.get('/:id', tokenExtractor, async (request, response) => {
   const contentWatched = await ContentWatched.findById(request.params.id).populate('user', {name: 1, email: 1})
 
   response.json(contentWatched)
 })
 
-contentWatchedRouter.post('/', async (request, response) => {
+contentWatchedRouter.post('/', tokenExtractor, userExtractor, async (request, response) => {
   const contentWatched =  new ContentWatched ({
     contentId: request.body.contentId,
     comment: request.body.comment ? request.body.comment : '',

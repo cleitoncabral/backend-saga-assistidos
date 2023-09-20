@@ -4,7 +4,7 @@ const User = require('../models/user')
 const contentWatched = require('../models/contentWatched')
 const { userExtractor } = require('../utils/middleware')
 
-usersRouter.post('/', userExtractor, async (request, response) => {
+usersRouter.post('/', async (request, response) => {
   const {name, email, password} = request.body
 
   try {
