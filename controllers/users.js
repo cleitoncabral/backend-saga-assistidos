@@ -4,10 +4,13 @@ const User = require('../models/user')
 const contentWatched = require('../models/contentWatched')
 const { userExtractor } = require('../utils/middleware')
 
-usersRouter.post('/', async (request, response) => {
+usersRouter.post('/register', async (request, response) => {
   const {name, email, password} = request.body
 
   try {
+    if (await User.findOne({email})) {
+      return response.status(400).json({error: 'Um perfil com esse e-mail já existe!'})
+    }
     if (password.length < 3) {
       return response.status(400).json({error: 'Senha curta'})
     }
@@ -36,7 +39,7 @@ usersRouter.post('/', async (request, response) => {
 //   response.json(users)
 // })
 
-usersRouter.delete('/:id', async (request, response) => {
+usersRouter.delete('/delete/:id', async (request, response) => {
   if (!request.userId) return response.status(401).json({error: 'Item não encontrado'})
 
   const user = request.user

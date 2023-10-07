@@ -41,15 +41,12 @@ const logger = require('../utils/logger')
 loginRouter.post('/', async (request, response) => {
   try {
     const {email, password} = request.body
-    const user = await User.findOne({email})
+    const user = await User.findOne({email}).populate('contentWatched', {contentId: 1, comment: 1, rate: 1 })
     try {
       if (!user) {
         return response.status(401).json({
           statusCode: 401,
-          message: 'User not found!',
-          data: {
-            email: email
-          }
+          message: 'E-mail incorreto!'
         })
       }
       
@@ -58,7 +55,7 @@ loginRouter.post('/', async (request, response) => {
       if (!passwordValidation) {
         return response.status(401).json({
           statusCode: 401,
-          message: 'Password incorrect',
+          message: 'Senha incorreta',
         })
       }
       

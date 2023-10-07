@@ -9,12 +9,13 @@ contentWatchedRouter.get('/', tokenExtractor, userExtractor, async (request, res
 })
 
 contentWatchedRouter.get('/:id', tokenExtractor, async (request, response) => {
+  console.log(request.params.id)
   const contentWatched = await ContentWatched.findById(request.params.id).populate('user', {name: 1, email: 1})
 
   response.json(contentWatched)
 })
 
-contentWatchedRouter.post('/', tokenExtractor, userExtractor, async (request, response) => {
+contentWatchedRouter.post('/create', tokenExtractor, userExtractor, async (request, response) => {
   const contentWatched =  new ContentWatched ({
     contentId: request.body.contentId,
     comment: request.body.comment ? request.body.comment : '',
@@ -35,20 +36,20 @@ contentWatchedRouter.post('/', tokenExtractor, userExtractor, async (request, re
   response.status(201).json(result)
 })
 
-contentWatchedRouter.put('/:id', async (request, response) => {
+contentWatchedRouter.put('/update/:id', tokenExtractor, userExtractor, async (request, response) => {
   const contentWatchedUpdate = {
-    contentId: request.body.contentId,
     comment: request.body.comment,
     rate: request.body.rate
   }
 
-  await ContentWatched.findByIdAndUpdate(request.params.id, contentWatchedUpdate)
+  const result = await ContentWatched.findByIdAndUpdate(request.params.id, contentWatchedUpdate)
 
-  response.status(200).end()
+  response.status(200).json(result)
 })
 
-contentWatchedRouter.delete('/:id', async (request, response) => {
+contentWatchedRouter.delete('/delete/:id', tokenExtractor, userExtractor, async (request, response) => {
   if (!request.userId) return response.status(401).json({error: 'invalid token'})
+  console.log(request.user)
 
   const contentWatched = await ContentWatched.findById(request.params.id)
   const user = request.user
