@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const contentWatchedSchema = new mongoose.Schema({
-  contentId: String,
+  contentId: Number,
   rate: Number,
   comment: String,
   user: {

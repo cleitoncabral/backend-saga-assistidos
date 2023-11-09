@@ -27,6 +27,7 @@ const errorHandler = (error, request, response, next) => {
 
 const tokenExtractor = (request, response, next) => {
   const authorization = request.headers['authorization']
+  console.log(authorization)
   const token = authorization && authorization.split(' ')[1]
   if (!token) {
     response.status(401).json({error: 'token invalid'})

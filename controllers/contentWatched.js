@@ -32,8 +32,8 @@ contentWatchedRouter.post('/create', tokenExtractor, userExtractor, async (reque
 
   user.contentWatched = user.contentWatched.concat(result._id)
   await user.save()
-
-  response.status(201).json(result)
+  console.log(user)
+  response.status(201).json(user.contentWatched)
 })
 
 contentWatchedRouter.put('/update/:id', tokenExtractor, userExtractor, async (request, response) => {
@@ -42,7 +42,7 @@ contentWatchedRouter.put('/update/:id', tokenExtractor, userExtractor, async (re
     rate: request.body.rate
   }
 
-  const result = await ContentWatched.findByIdAndUpdate(request.params.id, contentWatchedUpdate)
+  const result = await ContentWatched.findByIdAndUpdate(request.arams.id, contentWatchedUpdate)
 
   response.status(200).json(result)
 })
@@ -60,7 +60,18 @@ contentWatchedRouter.delete('/delete/:id', tokenExtractor, userExtractor, async 
 
   await ContentWatched.findByIdAndRemove(request.params.id)
 
-  response.status(204).end()
+  response.status(204).end('Deleted!')
+})
+
+contentWatchedRouter.delete('/deleteAll', tokenExtractor, userExtractor, async (request, response) => {
+  if (!request.userId) return response.status(401).json({error: 'invalid token'})
+  try {
+    await ContentWatched.deleteMany()
+    response.status(204).end()
+  } catch (err) {
+    console.error(err)
+  }
+
 })
 
 module.exports = contentWatchedRouter
