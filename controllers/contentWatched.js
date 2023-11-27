@@ -1,18 +1,21 @@
 const contentWatchedRouter = require('express').Router()
 const ContentWatched = require('../models/contentWatched')
+const {tokenExtractor, userExtractor} = require('../utils/middleware')
 
-contentWatchedRouter.get('/', async (request, response) => {
-  const contentWatched = await ContentWatched.find({}).populate('user', {email: 1, name: 1})
+contentWatchedRouter.get('/', tokenExtractor, userExtractor, async (request, response) => {
+  //See more about middleware and how to use better
+  const contentWatched = await ContentWatched.find({'_id': {$in: request.user.contentWatched}}).populate('user', {name: 1, email: 1})
   response.json(contentWatched)
 })
 
-contentWatchedRouter.get('/:id', async (request, response) => {
+contentWatchedRouter.get('/:id', tokenExtractor, async (request, response) => {
+  console.log(request.params.id)
   const contentWatched = await ContentWatched.findById(request.params.id).populate('user', {name: 1, email: 1})
 
   response.json(contentWatched)
 })
 
-contentWatchedRouter.post('/', async (request, response) => {
+contentWatchedRouter.post('/create', tokenExtractor, userExtractor, async (request, response) => {
   const contentWatched =  new ContentWatched ({
     contentId: request.body.contentId,
     comment: request.body.comment ? request.body.comment : '',
@@ -29,24 +32,28 @@ contentWatchedRouter.post('/', async (request, response) => {
 
   user.contentWatched = user.contentWatched.concat(result._id)
   await user.save()
-
-  response.status(201).json(result)
+  console.log(user)
+  response.status(201).json(user.contentWatched)
 })
 
-contentWatchedRouter.put('/:id', async (request, response) => {
+contentWatchedRouter.put('/update/:id', tokenExtractor, userExtractor, async (request, response) => {
   const contentWatchedUpdate = {
-    contentId: request.body.contentId,
     comment: request.body.comment,
     rate: request.body.rate
   }
 
-  await ContentWatched.findByIdAndUpdate(request.params.id, contentWatchedUpdate)
+  console.log(request.body)
+  
+  const result = await ContentWatched.findByIdAndUpdate(request.body.id, contentWatchedUpdate)
+  const dataUpdated = await ContentWatched.find({})
+  console.log(dataUpdated)
 
-  response.status(200).end()
+  response.status(200).json(dataUpdated)
 })
 
-contentWatchedRouter.delete('/:id', async (request, response) => {
+contentWatchedRouter.delete('/delete/:id', tokenExtractor, userExtractor, async (request, response) => {
   if (!request.userId) return response.status(401).json({error: 'invalid token'})
+  console.log(request.user)
 
   const contentWatched = await ContentWatched.findById(request.params.id)
   const user = request.user
@@ -57,7 +64,18 @@ contentWatchedRouter.delete('/:id', async (request, response) => {
 
   await ContentWatched.findByIdAndRemove(request.params.id)
 
-  response.status(204).end()
+  response.status(204).end('Deleted!')
+})
+
+contentWatchedRouter.delete('/all', tokenExtractor, userExtractor, async (request, response) => {
+  if (!request.userId) return response.status(401).json({error: 'invalid token'})
+  try {
+    await ContentWatched.deleteMany()
+    response.status(204).end()
+  } catch (err) {
+    console.error(err)
+  }
+
 })
 
 module.exports = contentWatchedRouter

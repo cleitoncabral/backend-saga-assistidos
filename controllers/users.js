@@ -20,6 +20,7 @@ usersRouter.post('/', async (request, response) => {
   })
 
   const savedUser = await user.save()
+  console.log(savedUser)
 
   response.status(201).json(savedUser)
 
@@ -27,6 +28,7 @@ usersRouter.post('/', async (request, response) => {
 
 usersRouter.get('/', async (request, response) => {
   const users = await User.find({}).populate('contentWatched', {contentId: 1, comment: 1, rate: 1})
+  console.log(users)
   response.json(users)
 })
 
@@ -38,7 +40,6 @@ usersRouter.delete('/:id', async (request, response) => {
   console.log(request.params.id)
   
   user.contentWatched.forEach(async element => {
-    console.log(element.toString())
     await contentWatched.findByIdAndRemove(element.toString())
   });
 
