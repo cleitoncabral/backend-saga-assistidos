@@ -1,7 +1,10 @@
 const mongoose = require('mongoose')
 
 const contentWatchedSchema = new mongoose.Schema({
-  contentId: Number,
+  contentId: {
+    type: Number,
+    unique: true
+  },
   rate: Number,
   comment: String,
   user: {

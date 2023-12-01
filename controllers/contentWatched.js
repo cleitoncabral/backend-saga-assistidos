@@ -1,6 +1,7 @@
 const contentWatchedRouter = require('express').Router()
 const ContentWatched = require('../models/contentWatched')
 const {tokenExtractor, userExtractor} = require('../utils/middleware')
+const logger = require('../utils/logger')
 
 contentWatchedRouter.get('/', tokenExtractor, userExtractor, async (request, response) => {
   //See more about middleware and how to use better
@@ -53,10 +54,11 @@ contentWatchedRouter.put('/update/:id', tokenExtractor, userExtractor, async (re
 
 contentWatchedRouter.delete('/delete/:id', tokenExtractor, userExtractor, async (request, response) => {
   if (!request.userId) return response.status(401).json({error: 'invalid token'})
-  console.log(request.user)
 
   const contentWatched = await ContentWatched.findById(request.params.id)
+  console.log(await ContentWatched.findById(request.params.id))
   const user = request.user
+
 
   if(user._id.toString() != contentWatched.user.toString() || !user._id || !contentWatched.user ) {
     return response.status(401).json({error: "this content doesn't belong to current user"})
@@ -67,7 +69,7 @@ contentWatchedRouter.delete('/delete/:id', tokenExtractor, userExtractor, async 
   response.status(204).end('Deleted!')
 })
 
-contentWatchedRouter.delete('/all', tokenExtractor, userExtractor, async (request, response) => {
+contentWatchedRouter.delete('/deleteAll', tokenExtractor, userExtractor, async (request, response) => {
   if (!request.userId) return response.status(401).json({error: 'invalid token'})
   try {
     await ContentWatched.deleteMany()
@@ -77,5 +79,4 @@ contentWatchedRouter.delete('/all', tokenExtractor, userExtractor, async (reques
   }
 
 })
-
 module.exports = contentWatchedRouter
