@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/contentWatched
+Content-Type: 'application/json'
+headers: {
+  
+} 
+
+{
+  "email": "cleiton@email.com",
+  "password": "12345"
+}
