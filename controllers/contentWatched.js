@@ -8,6 +8,8 @@ const contentWatched = require('../models/contentWatched')
 contentWatchedRouter.get('/', tokenExtractor, userExtractor, async (request, response) => {
   //See more about middleware and how to use better
   const contentWatched = await ContentWatched.find({'_id': {$in: request.user.contentWatched}}).populate('user', {name: 1, email: 1})
+})
+
 contentWatchedRouter.get('/', tokenExtractor, userExtractor, async (request, response) => {
   //See more about middleware and how to use better
   const contentWatched = await ContentWatched.find({'_id': {$in: request.user.contentWatched}}).populate('user', {name: 1, email: 1})
@@ -43,7 +45,6 @@ contentWatchedRouter.post('/create', tokenExtractor, userExtractor, async (reque
   response.status(201).json(user.contentWatched)
 })
 
-contentWatchedRouter.put('/update/:id', tokenExtractor, userExtractor, async (request, response) => {
 contentWatchedRouter.put('/update/:id', tokenExtractor, userExtractor, async (request, response) => {
   const contentWatchedUpdate = {
     comment: request.body.comment,
