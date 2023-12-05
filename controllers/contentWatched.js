@@ -6,12 +6,6 @@ const User = require('../models/user')
 const contentWatched = require('../models/contentWatched')
 
 contentWatchedRouter.get('/', tokenExtractor, userExtractor, async (request, response) => {
-  //See more about middleware and how to use better
-  const contentWatched = await ContentWatched.find({'_id': {$in: request.user.contentWatched}}).populate('user', {name: 1, email: 1})
-})
-
-contentWatchedRouter.get('/', tokenExtractor, userExtractor, async (request, response) => {
-  //See more about middleware and how to use better
   const contentWatched = await ContentWatched.find({'_id': {$in: request.user.contentWatched}}).populate('user', {name: 1, email: 1})
   response.json(contentWatched)
 })
@@ -28,10 +22,12 @@ contentWatchedRouter.post('/create', tokenExtractor, userExtractor, async (reque
     comment: request.body.comment ? request.body.comment : '',
     rate: request.body.rate ? request.body.rate : 0
   })
-
+  
+  console.log(contentWatched)
   const user = request.user
 
   if (!user) return response.status(401).json({error: 'Token de usuário inválido'})
+
 
   contentWatched.user = user._id
 
@@ -39,9 +35,7 @@ contentWatchedRouter.post('/create', tokenExtractor, userExtractor, async (reque
 
   user.contentWatched = user.contentWatched.concat(result._id)
   await user.save()
-  console.log(user)
-  response.status(201).json(user.contentWatched)
-  console.log(user)
+
   response.status(201).json(user.contentWatched)
 })
 
@@ -61,14 +55,16 @@ contentWatchedRouter.put('/update/:id', tokenExtractor, userExtractor, async (re
 })
 
 contentWatchedRouter.delete('/delete/:id', tokenExtractor, userExtractor, async (request, response) => {
-  // await User.findOneAndUpdate({_id: '64f911aa4d14e007f8d49f6f'},
-  //   {$pull: {contentWatched: '656a6c9b0c7d3012ae5c917b'}},
-  //   {multi: true}
-  // )
   if (!request.userId) return response.status(401).json({error: 'invalid token'})
+  console.log(request.user.contentWatched)
   try {
+    await User.findOneAndUpdate({_id: request.userId.id},
+      {$pull: {contentWatched: request.params.id}},
+      {multi: true}
+    )
     await ContentWatched.findByIdAndRemove(request.params.id)
-    const result = ContentWatched.find({'_id': {$in: request.user.contentWatched}}).populate('user', {name: 1, email: 1})
+    const result = await ContentWatched.find({'_id': {$in: request.user.contentWatched}}).populate('user', {name: 1, email: 1})
+    
     response.status(200).json(result)
   } catch (err) {
     console.error(err)
@@ -79,11 +75,8 @@ contentWatchedRouter.delete('/deleteAll', tokenExtractor, userExtractor, async (
   const test = await User.findById({_id: '64f911aa4d14e007f8d49f6f'})
   // await test.collection.deleteMany({_id: {$in: test.contentWatched}})
   // console.log(test.contentWatched)
-
-  User.collection.update({},
-    {$pull: { contentWatched: { $in: "64f911aa4d14e007f8d49f6f"}}},
-    { multi: true });
-
+  
+  console.log(test)
   // const res = await User.find(request.params)
   if (!request.userId) return response.status(401).json({error: 'invalid token'})
   try {

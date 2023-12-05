@@ -25,21 +25,39 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
+// const tokenExtractor = (request, response, next) => {
+//   const authorization = request.get('authorization')
+//   try {
+//     if (authorization && authorization.startsWith('Bearer ')) {
+//       const token = authorization.replace('Bearer ', '')
+//       const decodedToken = jwt.verify(token, process.env.SECRET)
+//       return request.userId = decodedToken
+//     } else {
+//       logger.error('error')
+//     }
+//   } catch (error) {
+//     if (error instanceof jwt.JsonWebTokenError) {
+//       response.status(401).json({error: 'token invalid'})
+//       return null;
+//     }
+//   }
+// }
+
 const tokenExtractor = (request, response, next) => {
-  const authorization = request.get('authorization')
-  
+  const authorization = request.headers['authorization']
+
+  const token = authorization && authorization.split(' ')[1]
+
+  if(!token) {
+    response.status(401).json({error: 'token invalido'})
+  }
   try {
-    if (authorization && authorization.startsWith('Bearer ')) {
-      const token = authorization.replace('Bearer ', '')
-      const decodedToken = jwt.verify(token, process.env.SECRET)
-      request.userId = decodedToken
-    } else {
-      logger.error('error')
-    }
+    request.userId = jwt.verify(token, process.env.SECRET)
+    next()
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      response.status(401).json({error: 'token invalid'})
-      return null;
+      response.status(401).json({error: 'token invalido'})
+      return null
     }
   }
 }
@@ -47,6 +65,7 @@ const tokenExtractor = (request, response, next) => {
 const userExtractor = async (request, response, next) => {
   try {
     const token = request.userId
+    console.log(token)
     if(token) {
       const user = await User.findById(token.id)
       request.user = user
