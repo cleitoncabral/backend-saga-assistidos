@@ -65,7 +65,7 @@ const tokenExtractor = (request, response, next) => {
 const userExtractor = async (request, response, next) => {
   try {
     const token = request.userId
-    console.log(token)
+    console.log(request.body)
     if(token) {
       const user = await User.findById(token.id)
       request.user = user
