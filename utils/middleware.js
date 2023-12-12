@@ -45,12 +45,11 @@ const errorHandler = (error, request, response, next) => {
 
 const tokenExtractor = (request, response, next) => {
   const authorization = request.headers['authorization']
-
   const token = authorization && authorization.split(' ')[1]
 
-  if(!token) {
-    response.status(401).json({error: 'token invalido'})
-  }
+  // if(!token) {
+  //   response.status(401).json({error: 'token invalido'})
+  // }
   try {
     request.userId = jwt.verify(token, process.env.SECRET)
     next()
@@ -65,7 +64,7 @@ const tokenExtractor = (request, response, next) => {
 const userExtractor = async (request, response, next) => {
   try {
     const token = request.userId
-    console.log(request.body)
+    
     if(token) {
       const user = await User.findById(token.id)
       request.user = user
