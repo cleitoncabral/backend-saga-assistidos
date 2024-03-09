@@ -1,37 +1,3 @@
-// const jwt = require('jsonwebtoken')
-// const bcrypt = require('bcrypt')
-// const loginRouter = require('express').Router()
-// const User = require('../models/user')
-
-// loginRouter.post('/', async (request, response) => {
-//   const {email, password} = request.body
-//   const user = await User.findOne({ email }).populate('contentWatched', {contentId: 1, comment: 1, rate: 1})
-
-//   const passwordCorrect = user === null ? false : await bcrypt.compare(password, user.passwordHash)
-  
-//   if (!(user && passwordCorrect)) return response.status(401).json({error: 'E-mail ou senha inválidos'})
-
-//   const userForToken = {
-//     email: user.email,
-//     id: user._id
-//   }
-
-//   const token = jwt.sign(userForToken, process.env.SECRET, {
-//     audience: 'urn:jwt:type:access', //who is generating token
-//     issuer: 'urn:system:token-issuer:type:access', // who is the destiny of token
-//     expiresIn: 60*60})
-
-//   response.status(200).send({token, email: user.email, name: user.name, contentWatched: user.contentWatched})
-// })
-
-// loginRouter.post('/validate', async (request, response) => {
-//   const token = jwt.sign(request.body.token, process.env.SECRET)
-
-//   response.status(200).send({token})
-// })
-
-// module.exports = loginRouter
-
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const loginRouter = require('express').Router()
@@ -43,6 +9,7 @@ loginRouter.post('/', async (request, response) => {
   try {
     const {email, password} = request.body
     const user = await User.findOne({email}).populate('contentWatched', {contentId: 1, comment: 1, rate: 1 })
+    
     try {
       if (!user) {
         return response.status(401).json({
@@ -71,14 +38,6 @@ loginRouter.post('/', async (request, response) => {
         expiresIn: 60*60
       })
 
-      // response.cookie('authToken', token, {
-      //   path: "/",
-      //   maxAge: 24 * 60 * 1000,
-      //   httpOnly: true
-      // })
-
-      // console.log(response)
-    
       response.status(200).send({token, email: user.email, name: user.name, contentWatched: user.contentWatched})
     } catch (error) {
       logger.error(error)
