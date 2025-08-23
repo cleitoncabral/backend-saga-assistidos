@@ -57,7 +57,7 @@ contentWatchedRouter.put('/update/:id', tokenExtractor, userExtractor, async (re
 
   try {
     const result = await ContentWatched.findByIdAndUpdate(request.body.id, contentWatchedUpdate)
-    const dataUpdated = await ContentWatched.find({})
+    const dataUpdated = await ContentWatched.find({'_id': {$in: request.user.contentWatched}}).populate('user', {name: 1, email: 1})
 
     response.status(201).json(dataUpdated)
   } catch (error) {
