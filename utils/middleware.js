@@ -1,13 +1,17 @@
 const logger = require('./logger')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
-const { nextTick } = require('process')
+const { ApiError } = require('./errors')
 
 const unknownEndPoint = (request, response) => {
   response.status(404).send({error: 'unknown endpoint'})
 }
 
 const errorHandler = (error, request, response, next) => {
+  if (error instanceof ApiError) {
+    return response.status(error.statusCode).json({ error: error.message })
+  }
+
   logger.error(error.message)
 
   if (error.name === 'CastError') {
@@ -24,24 +28,6 @@ const errorHandler = (error, request, response, next) => {
 
   next(error)
 }
-
-// const tokenExtractor = (request, response, next) => {
-//   const authorization = request.get('authorization')
-//   try {
-//     if (authorization && authorization.startsWith('Bearer ')) {
-//       const token = authorization.replace('Bearer ', '')
-//       const decodedToken = jwt.verify(token, process.env.SECRET)
-//       return request.userId = decodedToken
-//     } else {
-//       logger.error('error')
-//     }
-//   } catch (error) {
-//     if (error instanceof jwt.JsonWebTokenError) {
-//       response.status(401).json({error: 'token invalid'})
-//       return null;
-//     }
-//   }
-// }
 
 const tokenExtractor = (request, response, next) => {
   const authorization = request.headers['authorization']

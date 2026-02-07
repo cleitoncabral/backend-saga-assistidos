@@ -4,6 +4,7 @@ const {tokenExtractor, userExtractor} = require('../utils/middleware')
 const logger = require('../utils/logger')
 const User = require('../models/user')
 const contentWatched = require('../models/contentWatched')
+const { createContent } = require('../services/contentWatchedService')
 
 contentWatchedRouter.get('/', tokenExtractor, userExtractor, async (request, response) => {
   try {
@@ -24,28 +25,14 @@ contentWatchedRouter.get('/:id', tokenExtractor, async (request, response) => {
 
 })
 
-contentWatchedRouter.post('/create', tokenExtractor, userExtractor, async (request, response) => {
-  const contentWatched =  new ContentWatched ({
-    contentId: request.body.contentId,
-    comment: request.body.comment ? request.body.comment : '',
-    rate: request.body.rate ? request.body.rate : 0
-  })
-  const user = request.user
-
-  if (!user) return response.status(401).json({error: 'Token de usuário inválido'})
-  if (!contentWatched.comment && !contentWatched.rate) return response.status(400).json({error: 'É necessário que um dos campos esteja preenchido!'})
-
-  contentWatched.user = user._id
+contentWatchedRouter.post('/create', tokenExtractor, userExtractor, async (request, response, next) => {
 
   try {
-    const result = await contentWatched.save()
-    user.contentWatched = user.contentWatched.concat(result._id)
-
-    await user.save()
-    response.status(201).json(contentWatched)
+    const result = await createContent(request.userId.id, request.body)
+    response.status(201).json(result)
 
   } catch (error) { 
-    response.status(400).json({error: error})
+    next(error)
   }
 })
 

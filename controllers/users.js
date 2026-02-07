@@ -3,8 +3,13 @@ const usersRouter = require('express').Router()
 const User = require('../models/user')
 const contentWatched = require('../models/contentWatched')
 const { userExtractor } = require('../utils/middleware')
+const { registerSchema } = require('../validators/userValidator')
 
 usersRouter.post('/register', async (request, response) => {
+  const {error, value } = registerShema.validate(request.body)
+  if (error) {
+    return response.status(400).json({error: error.details[0].message})
+  }
   const {name, email, password} = request.body
   const emailRegexp = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
   const isValid = emailRegexp.test(email)
@@ -32,7 +37,7 @@ usersRouter.post('/register', async (request, response) => {
   
     response.status(201).json(savedUser)
   } catch (error) {
-    console.error(error)
+    logger.error(error)
   }
 
 })

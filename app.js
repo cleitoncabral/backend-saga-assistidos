@@ -25,5 +25,7 @@ app.use(express.json())
 app.use('/api/contentWatched', contentWatched)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
+app.use(middleware.unknownEndPoint)
+app.use(middleware.errorHandler)
 
 module.exports = app
